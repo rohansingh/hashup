@@ -15,7 +15,7 @@ var button = document.getElementById('uploadButton');
 button.onclick = function () {
   var h = hashup('/javascripts/hashupWorker.js');
 
-  now.getUploadTicket(function (ticket) {
+  $.getJSON('/upload-ticket', function (ticket) {
     console.log('Received an upload ticket with key: ' + ticket.key);
 
     h.uploadFile(input.files[0], '/upload', ticket, function (result) {

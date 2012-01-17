@@ -56,6 +56,7 @@ hashup = function (workerPath) {
       // Upload the file along with the the upload ticket so that
       // the upload can be identified later.
       formData.append('ticket', fob.ticket);
+      formData.append('fileName', fob.fileName);
       formData.append(file.name, file);
 
       var xhr = new XMLHttpRequest();
@@ -90,10 +91,10 @@ hashup = function (workerPath) {
       }
 
       var formData = new FormData();
+      formData.append('ticket', fob.ticket);
+      formData.append('fileName', fob.fileName);
       formData.append('hash', fob.hash);
       formData.append('hmac', fob.hmac);
-      formData.append('fileName', fob.fileName);
-      formData.append('ticket', fob.ticket);
 
       var xhr = new XMLHttpRequest();
       xhr.open('POST', uploadPath);

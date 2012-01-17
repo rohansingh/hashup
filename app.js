@@ -15,7 +15,6 @@
 
 var express = require('express')
   , crypto = require('crypto')
-  , nowjs = require('now')
   , routes = require('./routes')
 
 var app = module.exports = express.createServer();
@@ -28,7 +27,7 @@ app.configure(function(){
   app.use(express.bodyParser());
   app.use(express.cookieParser());
   app.use(express.session({
-    secret: 'hashup for breakfast!'
+    secret: 'hashup for breakfast!',
   }));
   app.use(express.methodOverride());
 
@@ -44,20 +43,14 @@ app.configure('production', function(){
   app.use(express.errorHandler()); 
 });
 
+
 // Routes
 
 app.get('/', routes.index);
 
-app.listen(8585);
-console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
-
-var everyone = nowjs.initialize(app, { cookieKey: 'connect.sid' });
-
-everyone.now.getUploadTicket = function (callback) {
-  var session = this.user.session;
-
+app.get('/upload-ticket', function(req, res) {
   crypto.randomBytes(32, function (randomBytes) {
-    session.tickets = session.tickets || {};
+    req.session.tickets = req.session.tickets || {};
 
     // A ticket consists of an HMAC key, and indicates which hash algorithm
     // to use to calculate the HMAC. This gets sent back to the client.
@@ -66,8 +59,20 @@ everyone.now.getUploadTicket = function (callback) {
       key: new Buffer(crypto.randomBytes(32)).toString('base64'),
     };
 
-    session.tickets[ticket.key] = ticket;
-    callback(ticket);
+    req.session.tickets[ticket.key] = ticket;
+    res.json(ticket);
   });
-};
+});
+
+app.post('/upload', function(req, res, next) {
+  var ticket = req.body.ticket;
+  var fileName = req.body.fileName;
+
+  if (req.files[fileName]) {
+    console.log('file uploaded: ' + fileName);
+  }
+});
+
+app.listen(8585);
+console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
 
